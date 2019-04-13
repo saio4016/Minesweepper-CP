@@ -4,37 +4,19 @@
 #include <random> //爆弾生成用
 
 //コンストラクタ
-Board::Board()
-{
-	init();
+Board::Board() {
+	initBoard();
 }
 
-//変数初期化(コンストラクタで使用)
-void Board::init() {
+//盤面生成
+void Board::initBoard() {
 	//盤面確保
 	board = std::vector<std::vector<Square>>(ROW, std::vector<Square>(COL));
-
 	//盤面をすべて閉じる
 	for (int y = 0; y < ROW; y++) {
 		for (int x = 0; x < COL; x++) {
 			board[y][x].DispState = CLOSED;
-		}
-	}
-
-	//盤面に爆弾を配置する
-	std::random_device rnd;
-	int cnt = 0;
-	while (cnt != BOMBS_NUM) {
-		int x = rnd() % COL, y = rnd() % ROW;
-		if(board[y][x].NonDispState != NONE) continue;
-		board[y][x].NonDispState = BOMB;
-		cnt++;
-	}
-
-	//周囲の爆弾の数を数える
-	for (int y = 0; y < ROW; y++) {
-		for (int x = 0; x < COL; x++) {
-			board[y][x].BombsNum = countBombs(x, y);
+			board[y][x].NonDispState = NONE;
 		}
 	}
 
@@ -42,7 +24,30 @@ void Board::init() {
 	restNones = ROW * COL - BOMBS_NUM;
 }
 
-//周囲の爆弾の数を数える(init()でのみ使用)
+//爆弾配置
+void Board::initBombs(int cx, int cy) {
+	//盤面に爆弾を配置する
+	std::random_device rnd;
+	int cnt = 0;
+	while (cnt != BOMBS_NUM) {
+		int x = rnd() % COL, y = rnd() % ROW;
+		//初手である程度開くようにする
+		if (cx - 1 <= x && x <= cx + 1 &&
+			cy - 1 <= y && y <= cy + 1) continue;
+		if (board[y][x].NonDispState == BOMB) continue;
+
+		board[y][x].NonDispState = BOMB;
+		cnt++;
+	}
+	//周囲の爆弾の数を数える
+	for (int y = 0; y < ROW; y++) {
+		for (int x = 0; x < COL; x++) {
+			board[y][x].BombsNum = countBombs(x, y);
+		}
+	}
+}
+
+//周囲の爆弾の数を数える(initBombsでのみ使用)
 int Board::countBombs(int x, int y) {
 	int ret = 0;
 	for (int k = 0; k < 8; k++) {
@@ -146,9 +151,9 @@ void Board::openSquare(int x, int y) {
 	}
 }
 
-bool Board::isFirstMove() const {
-	if (restNones != ROW * COL - BOMBS_NUM) false;
-	else true;
+bool Board::isFirstOpen() const{
+	if (restNones != ROW * COL - BOMBS_NUM) return false;
+	else return true;
 }
 
 //指定マスに置ければtrueを返す

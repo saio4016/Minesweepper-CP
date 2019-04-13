@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "Cursor.h"
+#include "Board.h"
 #include <conio.h>
 
 //コンストラクタ
 Cursor::Cursor()
 {
-	cursorX = 0;
-	cursorY = 0;
+	cursorX = ROW/2;
+	cursorY = COL/2;
 }
 
 //カーソルのx座標取得
@@ -20,20 +21,19 @@ int Cursor::getCursorY() const{
 }
 
 //カーソル操作
-char Cursor::operateCursor(const Board& board) {
-	bool first = board.isFirstMove;
+char Cursor::operateCursor() {
 	switch (_getch()) {
 	case 'w':
-		if (!first && cursorY > 0) cursorY--;
+		if (cursorY > 0) cursorY--;
 		break;
 	case 'a':
-		if (!first && cursorX > 0) cursorX--;
+		if (cursorX > 0) cursorX--;
 		break;
 	case 's':
-		if (!first && cursorY < ROW - 1) cursorY++;
+		if (cursorY < ROW - 1) cursorY++;
 		break;
 	case 'd':
-		if (!first && cursorX < COL - 1) cursorX++;
+		if (cursorX < COL - 1) cursorX++;
 		break;
 	case 'f':
 		return 'f';

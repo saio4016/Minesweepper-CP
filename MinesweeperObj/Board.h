@@ -22,13 +22,14 @@ private:
 
 public:
 	Board();
-	void init();
+	void initBoard();
+	void initBombs(int cx, int cy);
 	int countBombs(int x, int y);
 	void dispBoard(const Cursor& cursor);
 	void endDispBoard(const Cursor& cursor);
 	void markBoard(const Cursor& cursor);
 	void openSquare(int x, int y);
-	bool isFirstMove() const;
+	bool isFirstOpen() const;
 	bool isOpenSquare(const Cursor& cursor);
 	bool isGameOver(const Cursor& cursor);
 	bool isGameClear();

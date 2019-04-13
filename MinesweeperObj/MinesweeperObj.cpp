@@ -12,6 +12,7 @@ int main()
 
 	while (true) {
 		system("cls"); //画面クリア
+		
 		board.dispBoard(cursor); //盤面出力
 
 		switch (cursor.operateCursor()) { //カーソル操作
@@ -19,6 +20,7 @@ int main()
 			case 'e': board.markBoard(cursor); continue;
 			default : continue;
 		}
+		if (board.isFirstOpen()) board.initBombs(cursor.getCursorX(),cursor.getCursorY()); //盤面初期化
 		if (!board.isOpenSquare(cursor)) continue; //指定したマスを開けられるか
 
 		if (board.isGameOver(cursor)) { //敗北

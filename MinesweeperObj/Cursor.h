@@ -11,7 +11,7 @@ public:
 	Cursor();
 	int getCursorX() const;
 	int getCursorY() const;
-	char operateCursor(const Board& board);
+	char operateCursor();
 	~Cursor();
 };
 
