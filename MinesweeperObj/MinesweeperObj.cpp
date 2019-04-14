@@ -1,45 +1,79 @@
 ﻿// MinesweeperObj.cpp : このファイルには 'main' 関数が含まれています。プログラム実行の開始と終了がそこで行われます。
 //
 
+  /********************************************
+  Name      ：MinesweeperObj.cpp
+  Function  ：Minesweeper
+  Author    ：saio4016
+  Date      ：2019/04/14(last update:2019/04/14)
+  Language  ：C++
+  IDE/Editor：Visual Studio 2017
+  Time      ：2days
+  Notices   ： Guide(↓)
+			  ・w = up, a = left, s = down, d = right
+			  ・e = flag, f = select
+
+  ********************************************/
+
 #include "pch.h"
 #include <iostream>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <conio.h>
+#include <Windows.h>
 
 int main()
 {
-	Cursor cursor;
-	Board board;
+	//カーソル非表示(コピペ)
+	HANDLE hOut;
+	CONSOLE_CURSOR_INFO cci;
+	hOut = GetStdHandle(STD_OUTPUT_HANDLE);               //出力用ハンドルの取得
+	GetConsoleCursorInfo(hOut, &cci);                     //CONSOLE_CURSOR_INFO構造体の現在の状態を取得する
+	cci.bVisible = false;                                 //メンバ変数のbVisibleがカーソルの表示・非表示を制御する変数
+	SetConsoleCursorInfo(hOut, &cci);                     //変更した構造体情報をコンソールWindowにセットする
 
+	char c;
+	std::printf("Press to start"); _getch();
+	std::system("cls");
+
+	//////////ここからゲーム開始
+
+	Cursor cursor, preCursor;                             //カーソル
+	Board board, preBoard;                                //盤面
+
+	board.dispFirstBoard();                               //基準となる盤面表示
 	while (true) {
-		system("cls"); //画面クリア
-		
-		board.dispBoard(cursor); //盤面出力
+		board.updateRest();                               //残り(爆弾/空きマス)数更新
+		cursor.updateCursor(board, preCursor);            //カーソル更新
+		preCursor.copyCursor(cursor);                     //カーソル位置保存
 
-		switch (cursor.operateCursor()) { //カーソル操作
-			case 'f': break;
-			case 'e': board.markBoard(cursor); continue;
-			default : continue;
-		}
-		if (board.isFirstOpen()) board.initBombs(cursor.getCursorX(),cursor.getCursorY()); //盤面初期化
-		if (!board.isOpenSquare(cursor)) continue; //指定したマスを開けられるか
+		if (!cursor.operateCursor(board)) continue;       //カーソル操作
+		if (board.isFirstOpen()) board.initBombs(cursor); //爆弾設定
+		if (!board.isOpenSquare(cursor)) continue;        //指定したマスを開けられるか
 
-		if (board.isGameOver(cursor)) { //敗北
-			system("cls");
-			board.endDispBoard(cursor);
-			std::cout << "You lose..." << std::endl;
+		if (board.isGameOver(cursor)) {                   //敗北
+			system("cls"); std::printf("\x1b[31m");       //画面クリア/文字色を赤に
+			board.dispEndBoard(cursor);
+			std::printf("You died...\n");
 			break;
 		}
 
-		board.openSquare(cursor.getCursorX(), cursor.getCursorY()); //マスを開ける
+		board.openSquare(cursor.getCursorX(),
+			             cursor.getCursorY());            //マスを開ける
+		board.updateBoard(preBoard);
 
-		if (board.isGameClear()) { //勝利
-			system("cls");
-			board.endDispBoard(cursor);
-			std::cout << "You win !!" << std::endl;
+		if (board.isGameClear()) {                        //勝利
+			system("cls"); std::printf("\x1b[36m");       //画面クリア/文字色をシアンに
+			board.dispEndBoard(cursor);
+			std::printf("You survived !\n");
 			break;
 		}
 	}
 
+	//////////ここでゲーム終了
+	for (int i = 0; i < 10; i++) _getch();
+	std::system("cls");
+	std::printf("\x1b[39m");
 	return 0;
 }
 
